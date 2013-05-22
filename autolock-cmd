@@ -1,0 +1,48 @@
+#!/usr/bin/python2
+# -*-python-*-
+from __future__ import division, print_function
+ü
+import argparse
+
+import dbus
+
+def lock(autlockd, args):
+    autolockd.Lock()
+
+def unlock(autolockd, args):
+    autolockd.Unlock()
+
+def disable(autolockd, args):
+    autolockd.Disable()
+
+def enable(autolockd, args):
+    autolockd.Enable()
+
+def open_autolockd(args):
+    bus = dbus.SessionBus()
+
+    autolockd_proxy = bus.get_object("net.zombofant.autolockd",
+                                     "/net/zombofant/autolockd")
+    autolockd = dbus.Interface(autolockd_proxy, "net.zombofant.autolockd")
+    return autolockd
+
+ap = argparse.ArgumentParser()
+
+ap_cmds = ap.add_subparsers()
+
+lock_cmd = ap_cmds.add_parser('lock')
+lock_cmd.set_defaults(func=lock)
+
+unlock_cmd = ap_cmds.add_parser('unlock')
+unlock_cmd.set_defaults(func=unlock)
+
+disable_cmd = ap_cmds.add_parser('disable')
+disable_cmd.set_defaults(func=disable)
+
+enable_cmd = ap_cmds.add_parser('enable')
+enable_cmd.set_defaults(func=enable)
+
+args = ap.parse_args()
+
+autolockd = open_autolockd(args)
+args.func(autolockd, args)
