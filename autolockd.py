@@ -123,6 +123,15 @@ class Autolockd(dbus.service.Object):
     def run(self):
         self._loop.run()
 
+    def inhibit(self):
+        cookie = self._inhibit_counter
+        self._inhibit_counter += 1
+        self._inhibit.add(cookie)
+        return cookie
+
+    def uninhibit(self, cookie):
+        self._inhibit.remove(cookie)
+
     ###################################################################
     # DBUS interface "net.zombofant.autolockd"
     @dbus.service.method(dbus_interface="net.zombofant.autolockd",
