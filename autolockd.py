@@ -198,10 +198,8 @@ class Autolockd(dbus.service.Object):
                 'net.zombofant.autolockd',
                 'The object does not implement the %s interface'
                     % interface)
-        return {"AllowUnlock": self._config.getboolean("unlock", "allow")}
-
-
-
+        return {"AllowUnlock": self._config.getboolean("unlock", "allow"),
+                "Enabled": self._active and not self._inhibit}
 
 autolockd = Autolockd()
 autolockd.run()
