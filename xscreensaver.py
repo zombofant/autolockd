@@ -26,6 +26,10 @@ open_display = libx.XOpenDisplay
 open_display.argtypes = [c_char_p]
 open_display.restype = POINTER(Display)
 
+close_display = libx.XCloseDisplay
+close_display.argtypes = [POINTER(Display)]
+close_display.restype = c_int
+
 xfree = libx.XFree
 xfree.argtypes = [c_void_p]
 xfree.restype = None
@@ -48,8 +52,13 @@ screen_saver_query_info.restype = c_int
 
 class ScreenSaver(object):
 
-    def __init__(self):
-        self.display = open_display(None)
+    def __init__(self, display=None):
+        if display is None:
+            self.display = open_display(None)
+            self.close_display = True
+        else:
+            self.display = display
+            self.close_display = False
         if not self.display:
             raise Exception("Could not open display")
         if not screen_saver_query_extension(self.display, POINTER(c_int)(c_int(0)), POINTER(c_int)(c_int(0))):
@@ -60,6 +69,8 @@ class ScreenSaver(object):
 
     def __del__(self):
         xfree(self.info)
+        if self.close_display:
+            close_display(self.display)
 
     def get_idle_time(self):
         screen_saver_query_info(self.display,
