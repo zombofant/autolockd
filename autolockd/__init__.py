@@ -1,17 +1,17 @@
 """
-Utilities for autolockd
+autolockd, a dbus aware autolocker
 """
-__version__ = '0.1'
+__version__ = '0.1beta'
 __all__ = ['setup_mainloop', 'Autolockd']
 
 import subprocess
-import ConfigParser
+import configparser
 import os
 
 from dbus.mainloop.glib import DBusGMainLoop
 import dbus
 import dbus.service
-import gobject
+from gi.repository import GObject
 
 import autolockd.xscreensaver as xscreensaver
 
@@ -36,7 +36,7 @@ class Autolockd(dbus.service.Object):
 
     def _load_config(self, config_file):
         # load the default config
-        self._config = ConfigParser.SafeConfigParser()
+        self._config = configparser.SafeConfigParser()
         self._config.add_section("lock")
         self._config.set("lock", "cmd", "pyxtrlock")
         self._config.set("lock", "onidle", "true")
@@ -75,7 +75,7 @@ class Autolockd(dbus.service.Object):
         return True
 
     def _setup(self):
-        self._loop = gobject.MainLoop()
+        self._loop = GObject.MainLoop()
         system_bus = dbus.SystemBus()
 
         upower_proxy = system_bus.get_object("org.freedesktop.UPower",
@@ -93,7 +93,7 @@ class Autolockd(dbus.service.Object):
 
         if self._config.getboolean("lock", "onidle"):
             self._screen_saver = xscreensaver.ScreenSaver()
-            gobject.timeout_add(1000, self._query_idle, None)
+            GObject.timeout_add(1000, self._query_idle, None)
 
     def _on_sleep(self):
         self._lock_filtered()
