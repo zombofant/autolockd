@@ -1,6 +1,9 @@
 from ctypes import *
 from ctypes.util import find_library
 
+class XScreenSaverException(Exception):
+    pass
+
 libx = cdll.LoadLibrary(find_library("X11"))
 libx_screen_saver = cdll.LoadLibrary(find_library("Xss"))
 
@@ -60,12 +63,12 @@ class ScreenSaver(object):
             self.display = display
             self.close_display = False
         if not self.display:
-            raise Exception("Could not open display")
+            raise XScreenSaverException("Could not open display")
         if not screen_saver_query_extension(self.display, POINTER(c_int)(c_int(0)), POINTER(c_int)(c_int(0))):
-            raise Exception("XScrnSaver extension not supported")
+            raise XScreenSaverException("XScrnSaver extension not supported")
         self.info = screen_saver_alloc_info()
         if self.info is None:
-            raise Exception("Could not alloc screen saver info")
+            raise XScreenSaverException("Could not alloc screen saver info")
 
     def __del__(self):
         xfree(self.info)
