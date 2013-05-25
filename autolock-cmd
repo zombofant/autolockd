@@ -2,6 +2,8 @@
 # -*-python-*-
 from __future__ import division, print_function
 
+import autolockd
+
 import argparse
 
 import dbus
@@ -27,6 +29,8 @@ def open_autolockd(args):
     return autolockd
 
 ap = argparse.ArgumentParser()
+
+ap.add_argument('--version', action='version', version=autolockd.__version__)
 
 ap_cmds = ap.add_subparsers()
 
