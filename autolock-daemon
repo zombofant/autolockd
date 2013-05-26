@@ -12,12 +12,19 @@ ap = argparse.ArgumentParser()
 ap.add_argument('--version', action='version', version=autolockd.__version__)
 ap.add_argument('-f', '--config-file', default=None,
                 help='Set alternative config file [default ~/.autolockd]')
-ap.add_argument('-v', '--verbose', action='count',
+ap.add_argument('-v', '--verbose', action='count', default=0,
                 help='Increase verbosity level')
 
 args = ap.parse_args()
 
-logging.basicConfig(format='[%(name)s] [%(levelname)s] %(message)s')
+LEVEL_MAP = {
+  0: 'WARNING',
+  1: 'INFO',
+  2: 'DEBUG'
+}
+
+logging.basicConfig(format='[%(name)s] [%(levelname)s] %(message)s',
+                    level=LEVEL_MAP.get(args.verbose, 'DEBUG'))
 
 autolockd.setup_mainloop()
 lockd = autolockd.Autolockd(args.config_file)
