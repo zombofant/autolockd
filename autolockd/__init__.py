@@ -7,6 +7,7 @@ __all__ = ['setup_mainloop', 'Autolockd']
 import subprocess
 import configparser
 import os
+from abc import ABCMeta, abstractmethod, abstractproperty
 
 from dbus.mainloop.glib import DBusGMainLoop
 import dbus
@@ -15,9 +16,64 @@ from gi.repository import GObject
 
 import autolockd.xscreensaver as xscreensaver
 
+
 def setup_mainloop():
     global loop_
     loop_ = DBusGMainLoop(set_as_default=True)
+
+class Locker(metaclass=ABCMeta):
+    """Interface for screen lockers
+
+    This abstracts away the interface by which the screen lock
+    child process is controlled.
+    """
+    @abstractmethod
+    def ensure_lock(self):
+        pass
+
+    @abstractmethod
+    def ensure_unlock(self):
+        pass
+
+    @abstractproperty
+    def is_locked(self):
+        pass
+
+class BlockingLocker(Locker):
+    """Interface to locking programs which do not exit until the lock
+    is cleared.
+    """
+
+    def __init__(self, locker):
+        super().__init__()
+        self._locker = locker
+        self._current_lock = None
+
+    def _check_retval(self):
+        if self._current_lock.retval != 0:
+            raise Exception("Locker returned non-zero")
+
+    def ensure_lock(self):
+        if not self.is_locked:
+            self._current_lock = subprocess.Popen(self._locker, shell=True)
+
+    def ensure_unlock(self):
+        if self._current_lock is not None:
+            self._current_lock.terminate()
+            self._current_lock.wait()
+            self._check_retval()
+        self._current_lock = None
+
+    @property
+    def is_locked(self):
+        if self._current_lock is not None:
+            if self._current_lock.poll() is not None:
+                self._check_retval()
+                self._current_lock = None
+            else:
+                # the screen locker is running
+                return True
+        return False
 
 # TODO: implement the freedesktop, gnome and kde screensaver interfaces
 class Autolockd(dbus.service.Object):
@@ -27,9 +83,9 @@ class Autolockd(dbus.service.Object):
         busname = dbus.service.BusName("net.zombofant.autolockd", session_bus)
         super(Autolockd, self).__init__(bus_name=busname,
                                         object_path="/net/zombofant/autolockd")
-        self._current_lock = None
         self._active = True
         self._load_config(config_file)
+        self._locker = BlockingLocker(self._config.get("lock", "cmd"))
         self._inhibit_counter = 0
         self._inhibit = set()
         self._setup()
@@ -107,24 +163,13 @@ class Autolockd(dbus.service.Object):
             self._lock()
 
     def _lock(self):
-        if self._current_lock is not None:
-            if self._current_lock.poll() is not None:
-                self._current_lock = None
-            else:
-                # the screen locker is running
-                return
-
-        self._current_lock = subprocess.Popen(self._config.get("lock", "cmd"),
-                                              shell=True)
+        self._locker.ensure_lock()
 
     def _unlock(self):
         if not self._config.get("unlock", "allow"):
             return
 
-        if self._current_lock is not None:
-            self._current_lock.terminate()
-            self._current_lock.wait()
-        self._current_lock = None
+        self._locker.ensure_unlock()
 
     def run(self):
         self._loop.run()
@@ -205,4 +250,5 @@ class Autolockd(dbus.service.Object):
                 'The object does not implement the %s interface'
                     % interface)
         return {"AllowUnlock": self._config.getboolean("unlock", "allow"),
+                "Locked": self._locker.is_locked,
                 "Enabled": self._active and not self._inhibit}
