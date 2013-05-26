@@ -17,6 +17,8 @@ ap.add_argument('-v', '--verbose', action='count',
 
 args = ap.parse_args()
 
+logging.basicConfig(format='[%(name)s] [%(levelname)s] %(message)s')
+
 autolockd.setup_mainloop()
 lockd = autolockd.Autolockd(args.config_file)
 lockd.run()

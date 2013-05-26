@@ -7,6 +7,7 @@ __all__ = ['setup_mainloop', 'Autolockd']
 import subprocess
 import configparser
 import os
+import logging
 
 from dbus.mainloop.glib import DBusGMainLoop
 import dbus
