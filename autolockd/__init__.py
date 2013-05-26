@@ -99,10 +99,12 @@ class Autolockd(dbus.service.Object):
             GObject.timeout_add(1000, self._query_idle, None)
 
     def _on_sleep(self):
+        logger.info('Locking: system is going to sleep.')
         self._lock_filtered()
 
     def _on_change(self):
         if self.upower_properties.Get("org.freedesktop.UPower", "LidIsClosed"):
+            logger.info('Locking: lid is closed.')
             self._lock_filtered()
 
     def _lock_filtered(self):
@@ -115,7 +117,7 @@ class Autolockd(dbus.service.Object):
                 self._current_lock = None
             else:
                 # the screen locker is running
-                logger.debug('Locker already runnning.')
+                logger.info('Locker already runnning.')
                 return
 
         logger.info('Starting locker {}'.format(self._config.get("lock",
