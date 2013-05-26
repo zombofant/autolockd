@@ -146,7 +146,8 @@ class Autolockd(dbus.service.Object):
                                              "/org/freedesktop/UPower")
 
         self.upower = dbus.Interface(upower_proxy, "org.freedesktop.UPower")
-        self.upower_properties = dbus.Interface(upower_proxy,
+        self.upower_properties = dbus.Interface(
+            upower_proxy,
             "org.freedesktop.DBus.Properties")
 
         if self._config.getboolean("lock", "onsleep"):
