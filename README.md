@@ -60,13 +60,14 @@ Invocation
 
 Server:
 
-    usage: autolock-daemon [-h] [--version] [-f CONFIG_FILE]
+    usage: autolock-daemon [-h] [--version] [-c CONFIG] [-v]
 
     optional arguments:
       -h, --help            show this help message and exit
       --version             show program's version number and exit
-      -f CONFIG_FILE, --config-file CONFIG_FILE
-                        Set alternative config file [default ~/.autolockd]
+      -c CONFIG, --config CONFIG
+                            Set alternative config file [default ~/.autolockd]
+      -v, --verbose         Increase verbosity level
 
 Client:
 
