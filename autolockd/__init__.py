@@ -51,8 +51,8 @@ class BlockingLocker(Locker):
         self._locker = locker
         self._current_lock = None
 
-    def _check_retval(self):
-        if self._current_lock.retval != 0:
+    def _check_returncode(self):
+        if self._current_lock.returncode != 0:
             logger.error("Locker returned non-zero")
 
     def ensure_lock(self):
@@ -65,14 +65,14 @@ class BlockingLocker(Locker):
         if self._current_lock is not None:
             self._current_lock.terminate()
             self._current_lock.wait()
-            self._check_retval()
+            self._check_returncode()
         self._current_lock = None
 
     @property
     def is_locked(self):
         if self._current_lock is not None:
             if self._current_lock.poll() is not None:
-                self._check_retval()
+                self._check_returncode()
                 self._current_lock = None
             else:
                 # the screen locker is running
