@@ -7,6 +7,7 @@ __all__ = ['setup_mainloop', 'Autolockd']
 import subprocess
 import configparser
 import os
+import logging
 
 from dbus.mainloop.glib import DBusGMainLoop
 import dbus
@@ -14,6 +15,8 @@ import dbus.service
 from gi.repository import GObject
 
 import autolockd.xscreensaver as xscreensaver
+
+logger = logging.getLogger(__name__)
 
 def setup_mainloop():
     global loop_
@@ -112,21 +115,27 @@ class Autolockd(dbus.service.Object):
                 self._current_lock = None
             else:
                 # the screen locker is running
+                logger.debug('Locker already runnning.')
                 return
 
+        logger.info('Starting locker {}'.format(self._config.get("lock",
+                                                                 "cmd")))
         self._current_lock = subprocess.Popen(self._config.get("lock", "cmd"),
                                               shell=True)
 
     def _unlock(self):
         if not self._config.get("unlock", "allow"):
+            logger.info('Unlocking not allowed by config.')
             return
 
+        logger.info('Unlocking.')
         if self._current_lock is not None:
             self._current_lock.terminate()
             self._current_lock.wait()
         self._current_lock = None
 
     def run(self):
+        logger.debug('Daemon started.')
         self._loop.run()
 
     def inhibit(self):
@@ -144,24 +153,28 @@ class Autolockd(dbus.service.Object):
                          in_signature='',
                          out_signature='')
     def Lock(self):
+        logger.info('Received lock command.')
         self._lock()
 
     @dbus.service.method(dbus_interface="net.zombofant.autolockd",
                          in_signature='',
                          out_signature='')
     def Unlock(self):
+        logger.info('Received unlock command.')
         self._unlock()
 
     @dbus.service.method(dbus_interface="net.zombofant.autolockd",
                          in_signature='',
                          out_signature='')
     def Enable(self):
+        logger.info('Received enable command, enabling.')
         self._active = True
 
     @dbus.service.method(dbus_interface="net.zombofant.autolockd",
                          in_signature='',
                          out_signature='')
     def Disable(self):
+        logger.info('Received enable command, disabling.')
         self._active = False
 
     #################################################################
