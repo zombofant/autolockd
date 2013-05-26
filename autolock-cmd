@@ -24,8 +24,14 @@ def enable(autolockd, args):
 def open_autolockd(args):
     bus = dbus.SessionBus()
 
-    autolockd_proxy = bus.get_object("net.zombofant.autolockd",
-                                     "/net/zombofant/autolockd")
+    try:
+        autolockd_proxy = bus.get_object("net.zombofant.autolockd",
+                                         "/net/zombofant/autolockd")
+    except dbus.exceptions.DBusException as e:
+        print("Could not get net.zombofant.autolockd dbus object.",
+              "autolock-daemon running?", file=sys.stderr)
+        sys.exit(1)
+
     autolockd = dbus.Interface(autolockd_proxy, "net.zombofant.autolockd")
     return autolockd
 
