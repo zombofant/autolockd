@@ -3,7 +3,7 @@ from distutils.core import setup
 
 authors = (
     'Jonas Wielicki <j.wielicki@sotecware.net>, '
-    'Sebastian Riese <sebastian.riese.mail@web.de>, '
+    'Sebastian Riese <s.riese@zombofant.net>, '
     'Leon Weber <leon@leonweber.de>'
 )
 
@@ -37,7 +37,7 @@ classifiers = [
 setup(name='autolockd',
       version='0.1beta',
       author=authors,
-      author_email='sebastian.riese.mail@web.de',
+      author_email='s.riese@zombofant.net',
       requires=['dbus', 'gi'],
       packages=['autolockd'],
       scripts=['autolock-daemon', 'autolock-cmd'],

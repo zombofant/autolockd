@@ -107,7 +107,8 @@ Requirements
 Authors
 -------
 * Jonas Wielicki <j.wielicki@sotecware.net>
-* Sebastian Riese <sebastian.riese.mail@web.de>
+* Sebastian Riese <s.riese@zombofant.net>
+* Leon Weber <leon@leonweber.de>
 
 ``autolockd`` was partially inspired by ``xautolock``.
 
