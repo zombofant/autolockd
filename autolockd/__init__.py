@@ -53,7 +53,7 @@ class BlockingLocker(Locker):
 
     def _check_retval(self):
         if self._current_lock.retval != 0:
-            raise Exception("Locker returned non-zero")
+            logger.error("Locker returned non-zero")
 
     def ensure_lock(self):
         if not self.is_locked:
