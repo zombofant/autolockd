@@ -2,11 +2,12 @@
 # -*-python-*-
 from __future__ import division, print_function
 
-import autolockd
-
 import argparse
+import sys
 
 import dbus
+
+import autolockd
 
 def lock(autlockd, args):
     autolockd.Lock()
