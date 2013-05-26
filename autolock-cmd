@@ -8,17 +8,22 @@ import dbus
 
 import autolockd
 
+
 def lock(autlockd, args):
     autolockd.Lock()
+
 
 def unlock(autolockd, args):
     autolockd.Unlock()
 
+
 def disable(autolockd, args):
     autolockd.Disable()
 
+
 def enable(autolockd, args):
     autolockd.Enable()
+
 
 def open_autolockd(args):
     bus = dbus.SessionBus()

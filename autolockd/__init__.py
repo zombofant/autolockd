@@ -19,9 +19,11 @@ import autolockd.xscreensaver as xscreensaver
 
 logger = logging.getLogger(__name__)
 
+
 def setup_mainloop():
     global loop_
     loop_ = DBusGMainLoop(set_as_default=True)
+
 
 class Locker(metaclass=ABCMeta):
     """Interface for screen lockers
@@ -40,6 +42,7 @@ class Locker(metaclass=ABCMeta):
     @abstractproperty
     def is_locked(self):
         pass
+
 
 class BlockingLocker(Locker):
     """Interface to locking programs which do not exit until the lock
@@ -78,6 +81,7 @@ class BlockingLocker(Locker):
                 # the screen locker is running
                 return True
         return False
+
 
 # TODO: implement the freedesktop, gnome and kde screensaver interfaces
 class Autolockd(dbus.service.Object):
@@ -143,7 +147,7 @@ class Autolockd(dbus.service.Object):
 
         self.upower = dbus.Interface(upower_proxy, "org.freedesktop.UPower")
         self.upower_properties = dbus.Interface(upower_proxy,
-           "org.freedesktop.DBus.Properties")
+            "org.freedesktop.DBus.Properties")
 
         if self._config.getboolean("lock", "onsleep"):
             self.upower.connect_to_signal("Sleeping", self._on_sleep)
@@ -244,7 +248,7 @@ class Autolockd(dbus.service.Object):
             raise dbus.exceptions.DBusException(
                 'net.zombofant.autolockd',
                 'The object does not implement the %s interface'
-                    % interface)
+                % interface)
 
         raise dbus.exceptions.DBusException(
             'net.zombofant.autolockd',
@@ -260,7 +264,7 @@ class Autolockd(dbus.service.Object):
             raise dbus.exceptions.DBusException(
                 'net.zombofant.autolockd',
                 'The object does not implement the %s interface'
-                    % interface)
+                % interface)
         return {"AllowUnlock": self._config.getboolean("unlock", "allow"),
                 "Locked": self._locker.is_locked,
                 "Enabled": self._active and not self._inhibit}
